@@ -99,7 +99,7 @@
       "title": "Reset Filters",
       "tooltip": "",
       "type": "link",
-      "url": "/d/${__dashboard.uid}"
+      "url": "/d/${__dashboard.uid}?var-match=__name__|!%3D|\"\"&&var-focus=&var-ds=$ds"
     }
   ],
   "panels": [
@@ -363,7 +363,10 @@
             "footer": {
               "reducers": []
             },
-            "inspect": false
+            "inspect": false,
+            "tooltip": {
+              "placement": "auto"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -488,7 +491,7 @@
                 "value": [
                   {
                     "title": "link",
-                    "url": "/d/${__dashboard.uid}?var-topN=$topN&var-match=__name__|=|${__value.raw}&var-ds=$ds"
+                    "url": "/d/${__dashboard.uid}?var-topN=$topN&var-match=__name__|=|${__value.raw}&var-ds=$ds$var-focus="
                   }
                 ]
               }
@@ -934,6 +937,23 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Metric name"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Link",
+                    "url": "/d/${__dashboard.uid}?var-topN=$topN&var-match=${__value.raw}|!=|\"\"&var-focus=${__value.raw}&var-ds=$ds"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -1374,7 +1394,7 @@
               },
               {
                 "key": "focusLabel",
-                "value": "$focusLabel"
+                "value": "$focus"
               }
             ]
           }
@@ -1413,14 +1433,14 @@
               },
               {
                 "key": "focusLabel",
-                "value": "$focusLabel"
+                "value": "$focus"
               }
             ]
           }
         }
       ],
       "timeFrom": "1d",
-      "title": "Values for \"$focusLabel\" label with the highest number of series",
+      "title": "Values for \"$focus\" label with the highest number of series",
       "transformations": [
         {
           "id": "joinByField",
@@ -2046,6 +2066,23 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Metric name"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Filter",
+                    "url": "/d/${__dashboard.uid}?var-topN=$topN&var-match=${__value.raw}|!=|\"\"&var-focus=${__value.raw}&var-ds=$ds"
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
@@ -2391,7 +2428,7 @@
           "value": ""
         },
         "label": "Focus label",
-        "name": "focusLabel",
+        "name": "focus",
         "options": [
           {
             "selected": true,
@@ -2412,6 +2449,6 @@
   "timezone": "browser",
   "title": "VictoriMetrics - Cardinality",
   "uid": "lak9tx2",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

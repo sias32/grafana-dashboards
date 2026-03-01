@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 316,
+  "id": 303,
   "links": [],
   "panels": [
     {
@@ -2674,6 +2674,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "VictoriaMetrics - Target statistics",
-  "uid": "c97a6bc9-aa94-44c5-8abc-f906fbee9665111",
+  "uid": "c97a6bc9-aa94-44c5-8abc-f906fbee9665",
   "version": 1
 }

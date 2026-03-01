@@ -87,7 +87,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
   "links": [
     {
       "asDropdown": false,
@@ -124,6 +123,58 @@
             "x": 0,
             "y": 1
           },
+          "id": 13,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "This dashboard mimics [VictoriaMetrics Cardinality Explorer](https://docs.victoriametrics.com/victoriametrics/#cardinality-explorer). Dashboard is in `Work in Progress` status.\r\n",
+            "mode": "markdown"
+          },
+          "pluginVersion": "12.3.3",
+          "title": "Info",
+          "transparent": true,
+          "type": "text"
+        },
+        {
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 12,
+            "y": 1
+          },
+          "id": 14,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "- The data is taken only for the `current` and `last day`\r\n- An `Inner` join is used, so there may be fewer rows than specified in `Limited Entries`. Also, if the statistics between days show 0, the metric is `also deleted` :(\r\n- The data from the `Label=value...` table cannot be quickly inserted into the `Time series selector`",
+            "mode": "markdown"
+          },
+          "pluginVersion": "12.3.3",
+          "title": "Specificity",
+          "transparent": true,
+          "type": "text"
+        },
+        {
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 12,
+            "x": 0,
+            "y": 5
+          },
           "id": 9,
           "options": {
             "code": {
@@ -148,7 +199,7 @@
             "h": 4,
             "w": 12,
             "x": 12,
-            "y": 1
+            "y": 5
           },
           "id": 10,
           "options": {
@@ -432,8 +483,12 @@
                       "value": 0
                     },
                     {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
                       "color": "red",
-                      "value": -1
+                      "value": 1
                     }
                   ]
                 }
@@ -443,6 +498,10 @@
                 "value": {
                   "type": "color-text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           },
@@ -496,6 +555,79 @@
                 ]
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Share On Total"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "min",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SOT [%]"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.001
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
           }
         ]
       },
@@ -505,7 +637,7 @@
         "x": 3,
         "y": 2
       },
-      "id": 3,
+      "id": 15,
       "options": {
         "cellHeight": "sm",
         "showHeader": true,
@@ -528,9 +660,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "A",
-          "root_selector": "data.seriesCountByMetricName",
+          "root_selector": ".data as $root\n| $root.seriesCountByMetricName\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      lastRequest: (.lastRequestTimestamp * 1000),\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -563,9 +695,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "B",
-          "root_selector": "data.seriesCountByMetricName",
+          "root_selector": ".data as $root\n| $root.seriesCountByMetricName\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      lastRequest: (.lastRequestTimestamp * 1000),\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -596,29 +728,7 @@
           "id": "joinByField",
           "options": {
             "byField": "name",
-            "mode": "outer"
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "lastRequestTS",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "lastRequestTimestamp A"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "1000"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            }
+            "mode": "inner"
           }
         },
         {
@@ -694,18 +804,40 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "SOT",
+            "binary": {
+              "left": {
+                "fixed": ""
+              },
+              "right": {
+                "fixed": ""
+              }
+            },
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "shareOfTotal A",
+                "shareOfTotal B"
+              ],
+              "reducer": "diff"
+            }
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
               "names": [
-                "lastRequestTimestamp A",
+                "name",
+                "lastRequest A",
                 "requestsCount A",
+                "shareOfTotal A",
                 "value A",
-                "test",
-                "lastRequestTS",
                 "1d",
                 "1d%",
-                "name"
+                "SOT"
               ]
             }
           }
@@ -715,25 +847,29 @@
           "options": {
             "excludeByName": {
               "lastRequestTimestamp": true,
-              "lastRequestTimestamp A": false,
+              "lastRequestTimestamp A": true,
               "name": false,
-              "requestsCount A": false
+              "requestsCount A": false,
+              "totalSeries A": false
             },
             "includeByName": {},
             "indexByName": {
-              "1d": 6,
-              "1d%": 7,
-              "lastRequestTS": 5,
-              "lastRequestTimestamp A": 3,
+              "1d": 5,
+              "1d%": 6,
+              "lastRequest A": 4,
+              "lastRequestTimestamp A": 2,
               "name": 0,
-              "requestsCount A": 4,
-              "test": 1,
-              "value A": 2
+              "requestsCount A": 3,
+              "shareOfTotal A": 7,
+              "value A": 1
             },
             "renameByName": {
               "1d": "1d",
               "1d%": "1d [%]",
               "Range": "1d",
+              "SOT": "SOT [%]",
+              "diff": "SOT [%]",
+              "lastRequest A": "Last request",
               "lastRequestTS": "Last request",
               "lastRequestTimestamp": "",
               "lastRequestTimestamp * 1000": "Last request",
@@ -741,6 +877,8 @@
               "name": "Metric name",
               "requestsCount": "Requests count",
               "requestsCount A": "Requests count",
+              "shareOfTotal A": "Share On Total",
+              "shareOnTotal": "Share On Total",
               "value": "Number of series",
               "value A": "Number of series"
             }
@@ -890,8 +1028,12 @@
                       "value": 0
                     },
                     {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
                       "color": "red",
-                      "value": -1
+                      "value": 1
                     }
                   ]
                 }
@@ -901,6 +1043,10 @@
                 "value": {
                   "type": "color-text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           },
@@ -954,6 +1100,83 @@
                 ]
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Share Of Total"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SOT [%]"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.0001
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
           }
         ]
       },
@@ -986,9 +1209,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "A",
-          "root_selector": "data.seriesCountByLabelName",
+          "root_selector": ".data as $root\n| $root.seriesCountByLabelName\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -1021,9 +1244,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "B",
-          "root_selector": "data.seriesCountByLabelName",
+          "root_selector": ".data as $root\n| $root.seriesCountByLabelName\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -1054,29 +1277,7 @@
           "id": "joinByField",
           "options": {
             "byField": "name",
-            "mode": "outer"
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "alias": "lastRequestTS",
-            "binary": {
-              "left": {
-                "matcher": {
-                  "id": "byName",
-                  "options": "lastRequestTimestamp A"
-                }
-              },
-              "operator": "*",
-              "right": {
-                "fixed": "1000"
-              }
-            },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            }
+            "mode": "inner"
           }
         },
         {
@@ -1152,18 +1353,38 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "SOT",
+            "binary": {
+              "left": {
+                "fixed": ""
+              },
+              "right": {
+                "fixed": ""
+              }
+            },
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "shareOfTotal A",
+                "shareOfTotal B"
+              ],
+              "reducer": "diff"
+            }
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
               "names": [
-                "lastRequestTimestamp A",
-                "requestsCount A",
+                "name",
+                "shareOfTotal A",
                 "value A",
-                "test",
-                "lastRequestTS",
                 "1d",
                 "1d%",
-                "name"
+                "SOT"
               ]
             }
           }
@@ -1192,6 +1413,7 @@
               "1d": "1d",
               "1d%": "1d [%]",
               "Range": "1d",
+              "SOT": "SOT [%]",
               "lastRequestTS": "Last request",
               "lastRequestTimestamp": "",
               "lastRequestTimestamp * 1000": "Last request",
@@ -1199,6 +1421,7 @@
               "name": "Metric name",
               "requestsCount": "Requests count",
               "requestsCount A": "Requests count",
+              "shareOfTotal A": "Share Of Total",
               "value": "Number of series",
               "value A": "Number of series"
             }
@@ -1291,8 +1514,12 @@
                       "value": 0
                     },
                     {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
                       "color": "red",
-                      "value": -1
+                      "value": 1
                     }
                   ]
                 }
@@ -1302,6 +1529,10 @@
                 "value": {
                   "type": "color-text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           },
@@ -1338,6 +1569,83 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Share Of Total"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SOT [%]"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.001
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
           }
         ]
       },
@@ -1353,7 +1661,7 @@
         "showHeader": true,
         "sortBy": [
           {
-            "desc": false,
+            "desc": true,
             "displayName": "Number of series"
           }
         ]
@@ -1370,9 +1678,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "A",
-          "root_selector": "data.seriesCountByFocusLabelValue",
+          "root_selector": ".data as $root\n| $root.seriesCountByFocusLabelValue\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -1409,9 +1717,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "B",
-          "root_selector": "data.seriesCountByFocusLabelValue",
+          "root_selector": ".data as $root\n| $root.seriesCountByFocusLabelValue\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -1446,7 +1754,7 @@
           "id": "joinByField",
           "options": {
             "byField": "name",
-            "mode": "outer"
+            "mode": "inner"
           }
         },
         {
@@ -1544,18 +1852,30 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "SOT",
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "shareOfTotal A",
+                "shareOfTotal B"
+              ],
+              "reducer": "diff"
+            }
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
               "names": [
-                "lastRequestTimestamp A",
-                "requestsCount A",
+                "name",
+                "shareOfTotal A",
                 "value A",
-                "test",
-                "lastRequestTS",
                 "1d",
                 "1d%",
-                "name"
+                "SOT"
               ]
             }
           }
@@ -1584,6 +1904,7 @@
               "1d": "1d",
               "1d%": "1d [%]",
               "Range": "1d",
+              "SOT": "SOT [%]",
               "lastRequestTS": "Last request",
               "lastRequestTimestamp": "",
               "lastRequestTimestamp * 1000": "Last request",
@@ -1591,6 +1912,7 @@
               "name": "Metric name",
               "requestsCount": "Requests count",
               "requestsCount A": "Requests count",
+              "shareOfTotal A": "Share Of Total",
               "value": "Number of series",
               "value A": "Number of series"
             }
@@ -1659,8 +1981,12 @@
                       "value": 0
                     },
                     {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
                       "color": "red",
-                      "value": -1
+                      "value": 1
                     }
                   ]
                 }
@@ -1670,6 +1996,10 @@
                 "value": {
                   "type": "color-text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           },
@@ -1703,6 +2033,83 @@
                 "id": "custom.cellOptions",
                 "value": {
                   "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Share Of Total"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SOT [%]"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.001
+                    }
+                  ]
                 }
               }
             ]
@@ -1738,9 +2145,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "A",
-          "root_selector": "data.seriesCountByLabelValuePair",
+          "root_selector": ".data as $root\n| $root.seriesCountByLabelValuePair\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -1773,9 +2180,9 @@
           "format": "table",
           "global_query_id": "",
           "hide": false,
-          "parser": "backend",
+          "parser": "jq-backend",
           "refId": "B",
-          "root_selector": "data.seriesCountByLabelValuePair",
+          "root_selector": ".data as $root\n| $root.seriesCountByLabelValuePair\n| map(\n    . + {\n      totalSeries: $root.totalSeries,\n      shareOfTotal: (.value / $root.totalSeries)\n    }\n  )",
           "source": "url",
           "type": "json",
           "url": "/prometheus/api/v1/status/tsdb",
@@ -1806,7 +2213,7 @@
           "id": "joinByField",
           "options": {
             "byField": "name",
-            "mode": "outer"
+            "mode": "inner"
           }
         },
         {
@@ -1904,18 +2311,30 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "SOT",
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "shareOfTotal A",
+                "shareOfTotal B"
+              ],
+              "reducer": "diff"
+            }
+          }
+        },
+        {
           "id": "filterFieldsByName",
           "options": {
             "include": {
               "names": [
-                "lastRequestTimestamp A",
-                "requestsCount A",
+                "name",
+                "shareOfTotal A",
                 "value A",
-                "test",
-                "lastRequestTS",
                 "1d",
                 "1d%",
-                "name"
+                "SOT"
               ]
             }
           }
@@ -1944,6 +2363,7 @@
               "1d": "1d",
               "1d%": "1d [%]",
               "Range": "1d",
+              "SOT": "SOT [%]",
               "lastRequestTS": "Last request",
               "lastRequestTimestamp": "",
               "lastRequestTimestamp * 1000": "Last request",
@@ -1951,6 +2371,7 @@
               "name": "Metric name",
               "requestsCount": "Requests count",
               "requestsCount A": "Requests count",
+              "shareOfTotal A": "Share Of Total",
               "value": "Number of series",
               "value A": "Number of series"
             }
@@ -2019,8 +2440,12 @@
                       "value": 0
                     },
                     {
+                      "color": "text",
+                      "value": 0
+                    },
+                    {
                       "color": "red",
-                      "value": -1
+                      "value": 1
                     }
                   ]
                 }
@@ -2030,6 +2455,10 @@
                 "value": {
                   "type": "color-text"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "short"
               }
             ]
           },
@@ -2183,7 +2612,7 @@
           "id": "joinByField",
           "options": {
             "byField": "name",
-            "mode": "outer"
+            "mode": "inner"
           }
         },
         {
@@ -2448,7 +2877,8 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "VictoriMetrics - Cardinality",
-  "uid": "lak9tx2",
-  "version": 2,
-  "weekStart": ""
+  "uid": "1d95a92f-1f0d-41e8-8129-6f2338df6119",
+  "version": 3,
+  "weekStart": "",
+  "id": null
 }

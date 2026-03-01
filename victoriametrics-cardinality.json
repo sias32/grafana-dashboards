@@ -2768,7 +2768,9 @@
   ],
   "preload": false,
   "schemaVersion": 42,
-  "tags": [],
+  "tags": [
+    "victoriametrics"
+  ],
   "templating": {
     "list": [
       {
@@ -2878,7 +2880,7 @@
   "timezone": "browser",
   "title": "VictoriMetrics - Cardinality",
   "uid": "1d95a92f-1f0d-41e8-8129-6f2338df6119",
-  "version": 3,
+  "version": 4,
   "weekStart": "",
   "id": null
 }

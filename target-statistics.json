@@ -18,8 +18,21 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 303,
-  "links": [],
+  "id": 317,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "doc",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Docs",
+      "tooltip": "",
+      "type": "link",
+      "url": "https://docs.victoriametrics.com/vmagent"
+    }
+  ],
   "panels": [
     {
       "collapsed": false,
@@ -388,7 +401,7 @@
         "type": "prometheus",
         "uid": "${ds}"
       },
-      "description": "for 24h",
+      "description": "For 24h",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -528,6 +541,7 @@
         "type": "prometheus",
         "uid": "${ds}"
       },
+      "description": "The series is counted for the last 24 hours",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -605,7 +619,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top by Series [24h]",
+      "title": "Top by Series",
       "transformations": [
         {
           "id": "organize",
@@ -1016,7 +1030,7 @@
         "type": "prometheus",
         "uid": "${ds}"
       },
-      "description": "Процент работающих target в job",
+      "description": "Percentage of available targets",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1367,7 +1381,7 @@
         "type": "prometheus",
         "uid": "${ds}"
       },
-      "description": "`Series` - Количество полученных серий\n\n`Series` - Количество полученных серий за 24ч\n\n`Series Limit` - Процент используемого [лимита](https://docs.victoriametrics.com/victoriametrics/vmagent/#cardinality-limiter) за 24ч \n\n`Samples` - полученые семплы/метрики\n\n`Dropped` - кол-во откинутых семплов (series_limit)\n\n`Relabeling` - кол-во замененных лейблов/меток\n\n`Size` - размер полученных семплов/метрик\n\n`Duration` - время получения семплов/метрик\n\n`Duration Limit` - Процент используемого лимита (scrape_timeout)",
+      "description": "- Some parameters use [automatically generated metrics](https://docs.victoriametrics.com/vmagent/#automatically-generated-metrics)\n- Some parameters are available when installing [cardinality limiter](https://docs.victoriametrics.com/vmagent/#cardinality-limiter)\n- The series is counted for the last 24 hours",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1484,7 +1498,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Series [24h]"
+              "options": "Series"
             },
             "properties": [
               {
@@ -1789,7 +1803,7 @@
               "instance": 0
             },
             "renameByName": {
-              "Value #A": "Series [24h]",
+              "Value #A": "Series",
               "Value #B": "Coverage",
               "Value #C": "Semples",
               "Value #D": "Size",
@@ -2028,7 +2042,7 @@
             "type": "prometheus",
             "uid": "${ds}"
           },
-          "description": "",
+          "description": "The series is counted for the last 24 hours",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2123,7 +2137,7 @@
               "refId": "A"
             }
           ],
-          "title": "Series [24h]",
+          "title": "Series",
           "type": "timeseries"
         },
         {
@@ -2535,7 +2549,7 @@
           "type": "timeseries"
         }
       ],
-      "title": "Top by Targets",
+      "title": "Top by Targets in ($job)",
       "type": "row"
     }
   ],
@@ -2675,5 +2689,5 @@
   "timezone": "browser",
   "title": "VictoriaMetrics - Target statistics",
   "uid": "c97a6bc9-aa94-44c5-8abc-f906fbee9665",
-  "version": 1
+  "version": 2
 }
